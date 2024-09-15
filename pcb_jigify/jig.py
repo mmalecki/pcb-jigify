@@ -1,5 +1,5 @@
 import cadquery as cq
-from settings import Settings
+from . import Settings
 
 registrationMagnetD = 10
 registrationPinFit = Settings.fit
@@ -9,7 +9,7 @@ wallT = Settings.wallT
 def area(bb):
     return (bb.ymax - bb.ymin) * (bb.xmax - bb.xmin)
 
-def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.registrationDepth, cut=False):
+def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.registrationDepth, cut=False, partBasket = None):
     w = cq.Workplane("XY")
 
     # Find the largest outline wire
@@ -24,10 +24,10 @@ def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.r
             pcbArea = ar
             pcbWire = wire
 
-    holder = cq.Face.makeFromWires(pcbWire.offset2D(min(Settings.surfaceMagnetD, registrationMagnetD) + 2 * wallT)[0])
+    holder = cq.Face.makeFromWires(pcbWire.offset2D(min(Settings.surfaceMagnetD, registrationMagnetD) + 2 * wallT + 2 * Settings.surfaceMagnetPcbClearance)[0])
 
     if registration is not None:
-        reg = [cq.Face.makeFromWires(wire.val()) for wire in registration]
+        reg = [cq.Face.makeFromWires(wire.val().offset2D(Settings.registrationFit)[0]) for wire in registration]
     else:
         pcbBottomClearance = cq.Face.makeFromWires(pcbWire.offset2D(-wallT)[0])
         reg = None
@@ -40,8 +40,8 @@ def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.r
     w = w.add(holder).wires().toPending().extrude(h)
     w = w.faces(">Z").workplane().add(pcb).wires().toPending().extrude(pcbT, combine='cut')
 
-    w = w.faces(">Z").edges(">>Y").move(0, -smOffset).workplane(centerOption="CenterOfMass").hole(smD, smH)
-    w = w.faces(">Z").edges("<<Y").move(0, smOffset).workplane(centerOption="CenterOfMass").hole(smD, smH)
+    w = w.faces(">Z").edges(">>Y").workplane(centerOption="CenterOfMass").move(0, -smOffset).hole(smD, smH)
+    w = w.faces(">Z").edges("<<Y").workplane(centerOption="CenterOfMass").move(0, smOffset).hole(smD, smH)
 
     if reg:
         for face in reg:
@@ -53,13 +53,30 @@ def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.r
         bb = w.union().val().BoundingBox()
         w = w.faces(">X").workplane(centerOption="CenterOfMass").rect((bb.ymax - bb.ymin) / 8,h).cutThruAll()
 
-    w = w.faces(">Z or <Z").chamfer(wallT / 6)
+    if partBasket is not None:
+        w = w.faces("<Z").edges("<<X").workplane(centerOption="CenterOfMass").move(wallT + partBasket[0] / 2, 0).rect(partBasket[0], partBasket[1]).extrude(-partBasket[2], combine='cut')
+
+    try:
+        w = w.faces(">Z").chamfer(wallT / 6)
+        # This sometimes fails when there are registration features too close to
+        # the PCB edge.
+        w = w.faces("<Z").chamfer(wallT / 6)
+    except:
+        log("Chamfering failed")
 
     return w
 
+## TODO: SPRINGS?1
+
 j = jig(
     cq.importers.importDXF("pm.dxf").wires(),
-    registration = cq.importers.importDXF("pm-reg.dxf").wires(),
-    cut=False
+    # registration = cq.importers.importDXF("pm-reg.dxf").wires(),
+    cut=False,
+    partBasket = (10,10, 2)
 )
+# j = jig(
+#     cq.importers.importDXF("/home/maciej/dev/electronics/Pocket-Power-Prowler/hardware/out/PowerAnalyzer-Edge_Cuts.dxf").wires(),
+#     registration = cq.importers.importDXF("/home/maciej/dev/electronics/Pocket-Power-Prowler/hardware/out/PowerAnalyzer-User_Eco1.dxf").wires(),
+#     cut=False
+# )
 show_object(j, name="jig")

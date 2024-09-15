@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pcb-jigify"
+version = "0.1.0"
+description = "PCB holder jig generator"
+authors = ["Maciej Małecki <me@mmalecki.com>"]
+readme = "README.md"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+cadquery = { git = "https://github.com/CadQuery/cadquery", python = ">= 3.9" }
+
+[tool.poetry.scripts]
+pcb-jigify = "pcb_jigify.cli:main"
