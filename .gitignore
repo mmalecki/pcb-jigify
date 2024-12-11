@@ -2,6 +2,9 @@
 *.3mf
 *.stl
 *.step
+*.ctb
+*.sl1
+*.dxf
 
 venv/
 __pycache__
