@@ -1,7 +1,6 @@
 import cadquery as cq
-from . import Settings
+from ..settings import Settings
 
-registrationMagnetD = 10
 registrationPinFit = Settings.fit
 
 wallT = Settings.wallT
@@ -9,7 +8,7 @@ wallT = Settings.wallT
 def area(bb):
     return (bb.ymax - bb.ymin) * (bb.xmax - bb.xmin)
 
-def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.registrationDepth, cut=False, partBasket = None):
+def jig(outline, pcbT = 1.6, surfaceMagnet: tuple[float, float] = None, registration = None, registrationDepth = Settings.registrationDepth, cut=False, partBasket = None):
     w = cq.Workplane("XY")
 
     # Find the largest outline wire
@@ -24,7 +23,7 @@ def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.r
             pcbArea = ar
             pcbWire = wire
 
-    holder = cq.Face.makeFromWires(pcbWire.offset2D(min(Settings.surfaceMagnetD, registrationMagnetD) + 2 * wallT + 2 * Settings.surfaceMagnetPcbClearance)[0])
+    holder = cq.Face.makeFromWires(pcbWire.offset2D(min(Settings.surfaceMagnetD, registrationMagnetD) + 2 * wallT + 2 * Settings.magnetPcbClearance)[0])
 
     if registration is not None:
         reg = [cq.Face.makeFromWires(wire.val().offset2D(Settings.registrationFit)[0]) for wire in registration]
@@ -65,18 +64,3 @@ def jig(outline, pcbT = 1.6, registration = None, registrationDepth = Settings.r
         log("Chamfering failed")
 
     return w
-
-## TODO: SPRINGS?1
-
-j = jig(
-    cq.importers.importDXF("pm.dxf").wires(),
-    # registration = cq.importers.importDXF("pm-reg.dxf").wires(),
-    cut=False,
-    partBasket = (10,10, 2)
-)
-# j = jig(
-#     cq.importers.importDXF("/home/maciej/dev/electronics/Pocket-Power-Prowler/hardware/out/PowerAnalyzer-Edge_Cuts.dxf").wires(),
-#     registration = cq.importers.importDXF("/home/maciej/dev/electronics/Pocket-Power-Prowler/hardware/out/PowerAnalyzer-User_Eco1.dxf").wires(),
-#     cut=False
-# )
-show_object(j, name="jig")
