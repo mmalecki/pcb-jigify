@@ -1,18 +1,17 @@
 import cadquery as cq
-from settings import Settings
-from base import baseJig
+from .settings import Settings
+from .base import baseJig
 
 wallT = Settings.wallT
-
 
 def jig(
         outline,
         # TODO: mid-stroke vs PCB thickness calculation
         testPoint: tuple[float, float],
-        pcbT = 1.6,
+        pcbT = Settings.pcbT,
 
         registration = None,
-        registrationDepth = Settings.registrationDepth,
+        registrationDepth = None,
 
         testPoints = None,
         surfaceMagnet: tuple[float, float] = (0, 0),
@@ -72,10 +71,3 @@ def jig(
         print("Chamfering bottom failed")
 
     return w
-
-show_object(jig(
-    cq.importers.importDXF("../../power_micro-Edge_Cuts.dxf").wires(),
-    testPoint = (0.889, 4.064),
-    testPoints = cq.importers.importDXF("../../power_micro-User_Eco2.dxf").wires(),
-    side = "bottom",
-))

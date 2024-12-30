@@ -15,7 +15,6 @@ class Settings:
     magnetPcbClearance = 4
     magnetFit = tightFit
 
-    registrationDepth = 1
     registrationFit = tightFit
 
     # Tested on resin printers only.
