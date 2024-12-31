@@ -8,6 +8,9 @@ Additional features:
 
 ## Installation
 
+Using [pipx](https://pipx.pypa.io/stable/) ([installation instructions](https://pipx.pypa.io/stable/installation/)) is
+recommended:
+
 ```sh
 pipx install pcb-jigify
 ```
