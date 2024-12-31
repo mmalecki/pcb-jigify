@@ -22,10 +22,10 @@ PCB Jigify integrates tightly with KiCad, but [can also be used with other ECADs
 are able to export DXF files.
 
 ##### Generate the jig
-Now you can generate the jig:
+You can generate the most basic of jigs by passing in an input board, and output model file:
 
 ```sh
-pcb-jigify holding pcb.kicad_pcb
+pcb-jigify holding --output holder.step pcb.kicad_pcb
 ```
 
 ##### Optional: place registration features
@@ -43,6 +43,7 @@ deep the registration features should be cut into the jig, for example"
 ```sh
 pcb-jigify holding \
     --registration-layer User.Eco1 --registration-depth 2 \
+    --output holder.step \
     pcb.kicad_pcb
 ```
 
@@ -60,6 +61,7 @@ To generate a jig from DXF files, pass in the edge cuts file, and optionally the
 ```sh
 pcb-jigify holding \
     [--registration-layer pcb-User_Eco1.dxf --registration-depth 2] \
+    --output holder.step \
     pcb-Edge_Cuts.dxf
 ```
 
@@ -69,6 +71,7 @@ Testing jigs utilizing pogo pins can be generated in a similar fashion.
 ```sh
 pcb-jigify testing \
     [--registration-layer User.Eco1 --registration-depth 2] \
-    [--testing-layer User.Eco2 --test-probe-diameter 1 --test-probe-length 1] \
+    --testing-layer User.Eco2 --test-probe-diameter 1 --test-probe-length 1 \
+    --output tester.step \
     pcb.kicad_pcb
 ```
