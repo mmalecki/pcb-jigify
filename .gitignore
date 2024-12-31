@@ -5,6 +5,7 @@
 *.ctb
 *.sl1
 *.dxf
+*.kicad_pcb
 
 venv/
 __pycache__
