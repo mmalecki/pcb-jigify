@@ -2,14 +2,12 @@ from typing import Optional
 import cadquery as cq
 from .settings import Settings
 
-registrationPinFit = Settings.fit
-
 wallT = Settings.wallT
 
 def area(bb):
     return (bb.ymax - bb.ymin) * (bb.xmax - bb.xmin)
 
-def jig(outline, pcbT = 1.6, surfaceMagnet: Optional[tuple[float, float]] = None, registration = None, registrationDepth = None, cut=False, partBasket = None):
+def jig(outline, pcbT = Settings.pcbT, pcbFit = Settings.pcbFit, surfaceMagnet: Optional[tuple[float, float]] = None, registration = None, registrationDepth = None, cut=False, partBasket = None):
     w = cq.Workplane("XY")
 
     # Find the largest outline wire
@@ -17,7 +15,7 @@ def jig(outline, pcbT = 1.6, surfaceMagnet: Optional[tuple[float, float]] = None
     pcbWire = None
     pcbArea = None
     for wire in outline.vals():
-        face = cq.Face.makeFromWires(wire.offset2D(Settings.pcbFit)[0])
+        face = cq.Face.makeFromWires(wire.offset2D(pcbFit)[0])
         ar = area(face.BoundingBox())
         if pcb is None or ar > pcbArea:
             pcb = face

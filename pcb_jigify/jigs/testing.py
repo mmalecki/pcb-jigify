@@ -24,7 +24,7 @@ def jig(
     magnetClearance = Settings.magnetPcbClearance if surfaceMagnetD > 0 else 0
 
     if registration is not None:
-        registration = [cq.Face.makeFromWires(wire.val().offset2D(Settings.registrationFit)[0]) for wire in registration]
+        registration = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
 
     if testPoints is not None:
         testPoints = [cq.Face.makeFromWires(wire) for wire in testPoints]
