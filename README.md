@@ -19,7 +19,7 @@ Alternatively, if the above doesn't work for you (PyPi doesn't allow GitHub depe
 so our CadQuery version is quite outdated), you can try installing directly from GitHub:
 
 ```sh
-pipx install git+https://github.com/mmalecki/kicad-to-openpnp.git
+pipx install git+https://github.com/mmalecki/pcb-jigify.git
 ```
 
 ## Usage
