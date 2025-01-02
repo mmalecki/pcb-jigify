@@ -72,6 +72,7 @@ def holding_main(file,
                  bottom_magnet_height,
                  cut,
                  part_basket,
+                 pcb_fit,
                  **rest):
     if file.endswith(KICAD_PCB):
         file, registration_layer, _ = read_layers_from_pcb(file, registration_layer)
@@ -94,6 +95,7 @@ def holding_main(file,
         cut=cut,
         partBasket=[10, 10, pcb_thickness] if part_basket else None,
         pcbT = pcb_thickness,
+        pcbFit=pcb_fit,
     )
     j.export(output)
 
@@ -108,6 +110,7 @@ def testing_main(file,
                  test_probe_length,
                  side,
                  output,
+                 pcb_fit,
                  **rest):
 
     if file.endswith(KICAD_PCB):
@@ -119,7 +122,9 @@ def testing_main(file,
         registration = cq.importers.importDXF(registration_layer).wires() if registration_layer is not None else None,
         registrationDepth = registration_depth,
         pcbT = pcb_thickness,
+        pcbFit = pcb_fit,
         testPoints = cq.importers.importDXF(testing_layer).wires(),
+
         side = side,
     )
     j.export(output)

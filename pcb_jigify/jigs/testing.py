@@ -9,6 +9,7 @@ def jig(
         # TODO: mid-stroke vs PCB thickness calculation
         testPoint: tuple[float, float],
         pcbT = Settings.pcbT,
+        pcbFit = Settings.pcbFit,
 
         registration = None,
         registrationDepth = None,
