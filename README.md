@@ -1,5 +1,8 @@
 # PCB Jigify!
-Generate holding and testing jigs for your PCBs straight from your PCB files!
+
+![An example PCB, its outline, and an automatically generated jig based on the outline](./docs/concept.png)
+
+Generate holding and testing jigs for your PCBs directly from your PCB files!
 
 Additional features:
 * embed magnets in the jigs
