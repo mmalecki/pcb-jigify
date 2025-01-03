@@ -1,5 +1,9 @@
 import cadquery as cq
-from .settings import Settings
+
+try:
+    from .settings import Settings
+except:
+    from settings import Settings
 
 def _area(bb):
     return (bb.ymax - bb.ymin) * (bb.xmax - bb.xmin)
