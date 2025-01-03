@@ -3,6 +3,7 @@
 import tempfile
 import subprocess
 import sys
+from os import path
 import argparse
 import cadquery as cq
 from .jigs.testing import jig as testing
@@ -60,10 +61,11 @@ def kicad_export_dxf(file, layer, output):
 
 def read_layers_from_pcb(file, registration_layer = None, testing_layer = None):
     dir = tempfile.gettempdir()
+    base = f"{dir}/{path.basename(file)}"
     return (
-        kicad_export_dxf(file, "Edge.Cuts", f"{dir}/{file}-Edge.Cuts.dxf"),
-        kicad_export_dxf(file, registration_layer, f"{dir}/{file}-{registration_layer}.dxf") if registration_layer is not None else None,
-        kicad_export_dxf(file, testing_layer, f"{dir}/{file}-{testing_layer}.dxf") if testing_layer is not None else None,
+        kicad_export_dxf(file, "Edge.Cuts", f"{base}-Edge.Cuts.dxf"),
+        kicad_export_dxf(file, registration_layer, f"{base}-{registration_layer}.dxf") if registration_layer is not None else None,
+        kicad_export_dxf(file, testing_layer, f"{base}-{testing_layer}.dxf") if testing_layer is not None else None,
     )
 
 
