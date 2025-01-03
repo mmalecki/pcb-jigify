@@ -15,14 +15,9 @@ def jig(
         registrationDepth = None,
 
         testPoints = None,
-        surfaceMagnet: tuple[float, float] = (0, 0),
         
         side="top"
     ):
-
-    surfaceMagnetD = surfaceMagnet[0]
-    surfaceMagnetH = surfaceMagnet[1]
-    magnetClearance = Settings.magnetPcbClearance if surfaceMagnetD > 0 else 0
 
     if registration is not None:
         registration = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
@@ -30,17 +25,9 @@ def jig(
     if testPoints is not None:
         testPoints = [cq.Face.makeFromWires(wire) for wire in testPoints]
 
-    smOffset = surfaceMagnetD / 2 + wallT
-    smD = surfaceMagnetD + Settings.magnetFit
-    smH = surfaceMagnetH + Settings.magnetFit
-
     h = testPoint[1] + pcbT
 
-    w = baseJig(cq.Workplane("XY"), outline, surfaceMagnetD + 2 * wallT + 2 * magnetClearance, h, pcbT, Settings.pcbFit)
-
-    if surfaceMagnetD > 0:
-        w = w.faces(">Z").edges(">>Y").workplane(centerOption="CenterOfMass").move(0, -smOffset).hole(smD, smH)
-        w = w.faces(">Z").edges("<<Y").workplane(centerOption="CenterOfMass").move(0, smOffset).hole(smD, smH)
+    w = baseJig(cq.Workplane("XY"), outline, 2 * wallT, h, pcbT, pcbFit)
 
     if registration:
         for face in registration:
