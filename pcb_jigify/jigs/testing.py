@@ -27,7 +27,7 @@ def jig(
 
     h = testPoint[1] + pcbT
 
-    w = baseJig(cq.Workplane("XY"), outline, 2 * wallT, h, pcbT, pcbFit)
+    (w, _) = baseJig(cq.Workplane("XY"), outline, 2 * wallT, h, pcbT, pcbFit)
 
     if registration:
         for face in registration:

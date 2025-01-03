@@ -16,44 +16,23 @@ def area(bb):
 def jig(outline, pcbT = Settings.pcbT, pcbFit = Settings.pcbFit, surfaceMagnet: Optional[tuple[float, float]] = None, registration = None, registrationDepth = None, cut=False, partBasket = None):
     w = cq.Workplane("XY")
 
-    # Find the largest outline wire
-    pcb = None
-    pcbWire = None
-    pcbArea = None
-    for wire in outline.vals():
-        face = cq.Face.makeFromWires(wire.offset2D(pcbFit)[0])
-        ar = area(face.BoundingBox())
-        if pcb is None or ar > pcbArea:
-            pcb = face
-            pcbArea = ar
-            pcbWire = wire
-
     # Some preliminary calculations around surface-hugging magnets
     smD = surfaceMagnet[0] + Settings.magnetFit if surfaceMagnet is not None else 0
     smH = surfaceMagnet[1] + Settings.magnetFit if surfaceMagnet is not None else 0
-    smOffset = smD / 2 + wallT
-
-    holder = cq.Face.makeFromWires(pcbWire.offset2D(smD + 2 * wallT + (2 * Settings.magnetPcbClearance if surfaceMagnet is not None else 0))[0])
-
-    if registration is not None:
-        reg = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
-    else:
-        pcbBottomClearance = cq.Face.makeFromWires(pcbWire.offset2D(-wallT)[0])
-        reg = None
-
     h = smH + wallT + pcbT
-    w = w.add(holder).wires().toPending().extrude(h)
-    w = w.faces(">Z").workplane().add(pcb).wires().toPending().extrude(pcbT, combine='cut')
+
+    (w, pcbWire) = baseJig(cq.Workplane("XY"), outline, smD + 2 * wallT + (2 * Settings.magnetPcbClearance if surfaceMagnet is not None else 0), h, pcbT, Settings.pcbFit)
 
     if surfaceMagnet is not None:
-        w = w.faces(">Z").edges(">>Y").workplane(centerOption="CenterOfMass").move(0, -smOffset).hole(smD, smH)
-        w = w.faces(">Z").edges("<<Y").workplane(centerOption="CenterOfMass").move(0, smOffset).hole(smD, smH)
+        magnetWire = pcbWire.offset2D(Settings.magnetPcbClearance)
+        for vector in [(-1, -1, 0), (1, 1, 0), (-1, 1, 0), (1, -1, 0)]:
+            w = w.faces(">Z").workplane().add(magnetWire).edges().vertices(cq.selectors.CenterNthSelector(cq.Vector(vector), 0)).first().translate((0, 0, h)).hole(smD, smH)
 
-    if reg:
-        for face in reg:
+    if registration is not None:
+        registration = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
+
+        for face in registration:
             w = w.faces(">Z").workplane(centerOption="CenterOfMass").add(face).wires().toPending().extrude(pcbT + registrationDepth, combine='cut')
-    else:
-        w = w.faces(">Z").workplane(centerOption="CenterOfMass").add(pcbBottomClearance).wires().toPending().cutThruAll()
 
     if cut:
         bb = w.union().val().BoundingBox()
@@ -68,6 +47,6 @@ def jig(outline, pcbT = Settings.pcbT, pcbFit = Settings.pcbFit, surfaceMagnet: 
         # the PCB edge.
         w = w.faces("<Z").chamfer(wallT / 6)
     except:
-        log("Chamfering failed")
+        print("Chamfering failed")
 
     return w

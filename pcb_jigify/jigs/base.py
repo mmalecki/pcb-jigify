@@ -31,4 +31,4 @@ def baseJig(w: cq.Workplane, outline, margin, height, pcbT = Settings.pcbT, pcbF
     w.faces("<Z").workplane(centerOption="CenterOfBoundBox").tag("back").end()
     w.faces(">Z[1]").workplane(centerOption="CenterOfBoundBox").tag("pcb").end()
 
-    return w
+    return (w, pcbWire)
