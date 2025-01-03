@@ -11,6 +11,7 @@ from .jigs.settings import Settings
 
 KICAD_PCB = '.kicad_pcb'
 KICAD_CLI = 'kicad-cli'
+DXF_TOL = 1e-4
 
 common_parser = argparse.ArgumentParser(add_help=False)
 
@@ -23,6 +24,9 @@ common_parser.add_argument('--pcb-thickness', default=Settings.pcbT, help='Thick
 common_parser.add_argument('--pcb-fit', default=Settings.pcbFit, help='Fit of the PCB', type=float)
 
 common_parser.add_argument('--output', help='Output file', type=str, required=True)
+
+common_parser.add_argument('--dxf-tolerance', help='DXF edge consolidation tolerance', type=float, default=DXF_TOL)
+
 common_parser.add_argument('file', help='PCB or edge cuts DXF file to process')
 
 parser = argparse.ArgumentParser(
@@ -73,6 +77,7 @@ def holding_main(file,
                  cut,
                  part_basket,
                  pcb_fit,
+                 dxf_tolerance,
                  **rest):
     if file.endswith(KICAD_PCB):
         file, registration_layer, _ = read_layers_from_pcb(file, registration_layer)
@@ -88,8 +93,8 @@ def holding_main(file,
         sys.exit(1)
 
     j = holding(
-        cq.importers.importDXF(file).wires(),
-        registration = cq.importers.importDXF(registration_layer).wires() if registration_layer is not None else None,
+        cq.importers.importDXF(file, tol=dxf_tolerance).wires(),
+        registration = cq.importers.importDXF(registration_layer, tol=dxf_tolerance).wires() if registration_layer is not None else None,
         registrationDepth=registration_depth,
         surfaceMagnet=(bottom_magnet_diameter, bottom_magnet_height) if bottom_magnet_diameter is not None else None,
         cut=cut,
@@ -111,19 +116,20 @@ def testing_main(file,
                  side,
                  output,
                  pcb_fit,
+                 dxf_tolerance,
                  **rest):
 
     if file.endswith(KICAD_PCB):
         file, registration_layer, testing_layer = read_layers_from_pcb(file, registration_layer, testing_layer)
 
     j = testing(
-        cq.importers.importDXF(file).wires(),
+        cq.importers.importDXF(file, tol=dxf_tolerance).wires(),
         testPoint = ( test_probe_diameter, test_probe_length ),
-        registration = cq.importers.importDXF(registration_layer).wires() if registration_layer is not None else None,
+        registration = cq.importers.importDXF(registration_layer, tol=dxf_tolerance).wires() if registration_layer is not None else None,
         registrationDepth = registration_depth,
         pcbT = pcb_thickness,
         pcbFit = pcb_fit,
-        testPoints = cq.importers.importDXF(testing_layer).wires(),
+        testPoints = cq.importers.importDXF(testing_layer, tol=dxf_tolerance).wires(),
 
         side = side,
     )
