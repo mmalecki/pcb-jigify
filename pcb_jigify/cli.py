@@ -59,14 +59,26 @@ def kicad_export_dxf(file, layer, output):
     ])
     return output
 
-def read_layers_from_pcb(file, registration_layer = None, testing_layer = None):
-    dir = tempfile.gettempdir()
-    base = f"{dir}/{path.basename(file)}"
+def read_layers(file, registration_layer = None, testing_layer = None, dxf_tolerance=DXF_TOL):
+    return (read_layers_from_pcb if file.endswith(KICAD_PCB) else read_layers_from_dxf)(file, registration_layer, testing_layer, dxf_tolerance)
+
+def read_layers_from_dxf(file, registration_layer = None, testing_layer = None, dxf_tolerance=DXF_TOL):
     return (
-        kicad_export_dxf(file, "Edge.Cuts", f"{base}-Edge.Cuts.dxf"),
-        kicad_export_dxf(file, registration_layer, f"{base}-{registration_layer}.dxf") if registration_layer is not None else None,
-        kicad_export_dxf(file, testing_layer, f"{base}-{testing_layer}.dxf") if testing_layer is not None else None,
+        cq.importers.importDXF(file, tol=dxf_tolerance),
+        cq.importers.importDXF(registration_layer, tol=dxf_tolerance) if registration_layer is not None else None,
+        cq.importers.importDXF(testing_layer, tol=dxf_tolerance) if testing_layer is not None else None,
     )
+
+def read_layers_from_pcb(file, registration_layer = None, testing_layer = None, dxf_tolerance=DXF_TOL):
+    with tempfile.TemporaryDirectory() as dir:
+        base = f"{dir}/{path.basename(file)}"
+        layers = read_layers_from_dxf(
+            kicad_export_dxf(file, "Edge.Cuts", f"{base}-Edge.Cuts.dxf"),
+            kicad_export_dxf(file, registration_layer, f"{base}-{registration_layer}.dxf") if registration_layer is not None else None,
+            kicad_export_dxf(file, testing_layer, f"{base}-{testing_layer}.dxf") if testing_layer is not None else None,
+            dxf_tolerance
+        )
+    return layers
 
 
 def holding_main(file,
@@ -81,8 +93,7 @@ def holding_main(file,
                  pcb_fit,
                  dxf_tolerance,
                  **rest):
-    if file.endswith(KICAD_PCB):
-        file, registration_layer, _ = read_layers_from_pcb(file, registration_layer)
+    file, registration_layer, _ = read_layers(file, registration_layer, dxf_tolerance=dxf_tolerance)
 
     if (bottom_magnet_diameter is None) != (bottom_magnet_height is None):
         holding_parser.print_help()
@@ -95,8 +106,8 @@ def holding_main(file,
         sys.exit(1)
 
     j = holding(
-        cq.importers.importDXF(file, tol=dxf_tolerance).wires(),
-        registration = cq.importers.importDXF(registration_layer, tol=dxf_tolerance).wires() if registration_layer is not None else None,
+        file.wires(),
+        registration = registration_layer.wires() if registration_layer is not None else None,
         registrationDepth=registration_depth,
         surfaceMagnet=(bottom_magnet_diameter, bottom_magnet_height) if bottom_magnet_diameter is not None else None,
         cut=cut,
@@ -121,17 +132,16 @@ def testing_main(file,
                  dxf_tolerance,
                  **rest):
 
-    if file.endswith(KICAD_PCB):
-        file, registration_layer, testing_layer = read_layers_from_pcb(file, registration_layer, testing_layer)
+    file, registration_layer, testing_layer = read_layers(file, registration_layer, testing_layer, dxf_tolerance)
 
     j = testing(
-        cq.importers.importDXF(file, tol=dxf_tolerance).wires(),
+        file.wires(),
         testPoint = ( test_probe_diameter, test_probe_length ),
-        registration = cq.importers.importDXF(registration_layer, tol=dxf_tolerance).wires() if registration_layer is not None else None,
+        registration = registration_layer.wires() if registration_layer is not None else None,
         registrationDepth = registration_depth,
         pcbT = pcb_thickness,
         pcbFit = pcb_fit,
-        testPoints = cq.importers.importDXF(testing_layer, tol=dxf_tolerance).wires(),
+        testPoints = testing_layer.wires(),
 
         side = side,
     )
