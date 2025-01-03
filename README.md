@@ -85,3 +85,12 @@ pcb-jigify testing \
     --output tester.step \
     pcb.kicad_pcb
 ```
+
+### Jig configuration
+
+PCB Jigify allows for in-depth configuration of some of the features of the jigs.
+
+#### Common
+
+* PCB fit - `--pcb-fit` - how much clearance should there be between the PCB
+  and the holder (default: 0.1 mm)
