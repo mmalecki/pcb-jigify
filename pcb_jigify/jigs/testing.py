@@ -19,21 +19,18 @@ def jig(
         side="top"
     ):
 
-    if registration is not None:
-        registration = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
-
-    if testPoints is not None:
-        testPoints = [cq.Face.makeFromWires(wire) for wire in testPoints]
-
     h = testPoint[1] + pcbT
 
     (w, _) = baseJig(cq.Workplane("XY"), outline, 2 * wallT, h, pcbT, pcbFit)
 
-    if registration:
-        for face in registration:
-            w = w.workplaneFromTagged("pcb").add(face).extrude(pcbT + registrationDepth, combine='cut')
+    if registration is not None:
+        registration = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
 
-    if testPoints:
+        for face in registration:
+            w = w.workplane().add(face).translate((0, 0, h - pcbT)).wires().toPending().cutBlind(registrationDepth)
+
+    if testPoints is not None:
+        testPoints = [cq.Face.makeFromWires(wire) for wire in testPoints]
         for face in testPoints:
             w = w.add(
                 cq.Face.makeFromWires(

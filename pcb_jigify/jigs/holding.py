@@ -24,15 +24,15 @@ def jig(outline, pcbT = Settings.pcbT, pcbFit = Settings.pcbFit, surfaceMagnet: 
     (w, pcbWire) = baseJig(cq.Workplane("XY"), outline, smD + 2 * wallT + (2 * Settings.magnetPcbClearance if surfaceMagnet is not None else 0), h, pcbT, Settings.pcbFit)
 
     if surfaceMagnet is not None:
-        magnetWire = pcbWire.offset2D(Settings.magnetPcbClearance)
+        magnetWire = pcbWire.offset2D(2 * Settings.magnetPcbClearance)
         for vector in [(-1, -1, 0), (1, 1, 0), (-1, 1, 0), (1, -1, 0)]:
-            w = w.faces(">Z").workplane().add(magnetWire).edges().vertices(cq.selectors.CenterNthSelector(cq.Vector(vector), 0)).first().translate((0, 0, h)).hole(smD, smH)
+            w = w.faces("<Z").workplane().add(magnetWire).edges().vertices(cq.selectors.CenterNthSelector(cq.Vector(vector), 0)).first().hole(smD, smH)
 
     if registration is not None:
         registration = [cq.Face.makeFromWires(wire.offset2D(Settings.registrationFit)[0]) for wire in registration]
 
         for face in registration:
-            w = w.faces(">Z").workplane(centerOption="CenterOfMass").add(face).wires().toPending().extrude(pcbT + registrationDepth, combine='cut')
+            w = w.workplane().add(face).translate((0, 0, h - pcbT)).wires().toPending().cutBlind(registrationDepth)
 
     if cut:
         bb = w.union().val().BoundingBox()

@@ -26,7 +26,7 @@ def baseJig(w: cq.Workplane, outline, margin, height, pcbT = Settings.pcbT, pcbF
     holder = cq.Face.makeFromWires(pcbWire.offset2D(margin)[0])
 
     w = w.add(holder).extrude(height)
-    w = w.faces(">Z").workplane().add(pcb).extrude(pcbT, combine='cut')
+    w = w.faces(">Z").workplane().add(pcb.translate((0, 0, height))).cutBlind(-pcbT)
 
     w.faces("<Z").workplane(centerOption="CenterOfBoundBox").tag("back").end()
     w.faces(">Z[1]").workplane(centerOption="CenterOfBoundBox").tag("pcb").end()
