@@ -1,6 +1,11 @@
 import cadquery as cq
-from .settings import Settings
-from .base import baseJig
+
+try:
+    from .settings import Settings
+    from .base import baseJig
+except:
+    from settings import Settings
+    from base import baseJig
 
 wallT = Settings.wallT
 
