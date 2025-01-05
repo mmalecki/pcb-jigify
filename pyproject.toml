@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pcb-jigify"
-version = "0.1.0-2"
+version = "0.1.1"
 description = "PCB holder and testing jig generator"
 authors = ["Maciej Małecki <me@mmalecki.com>"]
 readme = "README.md"
