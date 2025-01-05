@@ -112,3 +112,4 @@ PCB Jigify allows for in-depth configuration of some of the features of the jigs
 ## Tips and tricks
 
 * Registration pins can be made from anything, including gold header pins stripped of their plastic part or bolts with their heads cut off
+* Slicers may complain about open edges or other faults in generated files. As long as the file looks printable, this shouldn't cause any issues.
