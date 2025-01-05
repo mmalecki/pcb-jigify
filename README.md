@@ -79,7 +79,14 @@ pcb-jigify holding \
 ```
 
 ### Testing jigs
+
 Testing jigs utilizing pogo pins can be generated in a similar fashion.
+
+In order to place testing features, pick a testing layer. We'll be using `User.Eco2` in our examples.
+
+Add a "copper" layer `User.Eco2` to pads you want to target with test probes. They don't need to be test pads - you can add this layer to any pad, test probe will be placed at its center.
+
+You will also need to pass in the test probe diameter and the holding length.
 
 ```sh
 pcb-jigify testing \
@@ -88,6 +95,8 @@ pcb-jigify testing \
     --output tester.step \
     pcb.kicad_pcb
 ```
+
+Note: due to small dimensions of most test probes, you may have to print the testing jigs on a resin printer.
 
 ### Jig configuration
 
