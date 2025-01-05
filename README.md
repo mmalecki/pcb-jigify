@@ -51,7 +51,7 @@ For example, to use a mounting hole as a registration feature, edit the mounting
 In manufacturing, this will cause the stencil to have the mounting hole etched through (because the paste layer indicates a stencil opening), the PCB drilled (as indicated by the drill point), and the holder to have a hole for press-fitting it (due to our very own `User.Eco1` indicator).
 
 Then, when generating the jig, pass the same registration layer, and how
-deep the registration features should be cut into the jig, for example"
+deep the registration features should be cut into the jig, for example):
 
 ```sh
 pcb-jigify holding \
