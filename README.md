@@ -86,15 +86,17 @@ In order to place testing features, pick a testing layer. We'll be using `User.E
 
 Add a "copper" layer `User.Eco2` to pads you want to target with test probes. They don't need to be test pads - you can add this layer to any pad, test probe will be placed at its center.
 
-You will also need to pass in the test probe diameter and the holding length.
+You will also need to pass in the test probe diameter and the holding length.  
+As an example, for a [Mill-Max spring-loaded pin with solder cup termination (0955-0-15-20-71-14-11-0)](https://www.mill-max.com/products/discrete-spring-loaded-pins/spring-loaded-pin-with-solder-cup-termination/0955/0955-0-15-20-71-14-11-0), the diameter would be 0.889 mm (0.035" in the datasheet), and the length 4.0894 mm (0.301" - 0.140" = 0.161" in the datasheet).
 
 ```sh
 pcb-jigify testing \
-    [--registration-layer User.Eco1 --registration-depth 2] \
-    --testing-layer User.Eco2 --test-probe-diameter 1 --test-probe-length 1 \
+    --testing-layer User.Eco2 --test-probe-diameter 0.889 --test-probe-length 4.0894 \
     --output tester.step \
     pcb.kicad_pcb
 ```
+
+Registration layer is also supported here, if desired.
 
 Note: due to small dimensions of most test probes, you may have to print the testing jigs on a resin printer.
 
@@ -106,3 +108,7 @@ PCB Jigify allows for in-depth configuration of some of the features of the jigs
 
 * PCB fit - `--pcb-fit` - how much clearance should there be between the PCB
   and the holder (default: 0.1 mm)
+
+## Tips and tricks
+
+* Registration pins can be made from anything, including gold header pins stripped of their plastic part or bolts with their heads cut off
