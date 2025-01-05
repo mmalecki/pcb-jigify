@@ -109,7 +109,8 @@ PCB Jigify allows for in-depth configuration of some of the features of the jigs
 * PCB fit - `--pcb-fit` - how much clearance should there be between the PCB
   and the holder (default: 0.1 mm)
 
-## Tips and tricks
+## Tips, tricks, notes
 
 * Registration pins can be made from anything, including gold header pins stripped of their plastic part or bolts with their heads cut off
 * Slicers may complain about open edges or other faults in generated files. As long as the file looks printable, this shouldn't cause any issues.
+* If the generation of the jig fails for any reason, don't hesitate to [open an issue](https://github.com/mmalecki/pcb-jigify/issues/new), preferably with a DXF export of the board outline layer included.
