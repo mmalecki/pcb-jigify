@@ -3,7 +3,7 @@
 import tempfile
 import subprocess
 import sys
-from os import path
+from pathlib import Path
 import argparse
 import cadquery as cq
 from .jigs.testing import jig as testing
@@ -50,10 +50,10 @@ testing_parser.add_argument('--test-probe-diameter', help='Test probe diameter',
 testing_parser.add_argument('--test-probe-length', help='Length of the test probe to hold onto', required=True, type=float)
 testing_parser.add_argument('--side', help='Side of the board facing the testing fixture', default="top", choices=["top", "bottom"])
 
-def kicad_export_dxf(file, layer, output):
+def kicad_export_dxf(file, layers, output):
     subprocess.run([
                    'kicad-cli', 'pcb', 'export', 'dxf',
-                   '--layers', layer,
+                   '--layers', ','.join(layers),
                    '-o', output,
                    '--ou', 'mm', file
     ])
@@ -71,11 +71,10 @@ def read_layers_from_dxf(file, registration_layer = None, testing_layer = None, 
 
 def read_layers_from_pcb(file, registration_layer = None, testing_layer = None, dxf_tolerance=DXF_TOL):
     with tempfile.TemporaryDirectory() as dir:
-        base = f"{dir}/{path.basename(file)}"
+        export_layers = ["Edge.Cuts", registration_layer, testing_layer]
+        kicad_export_dxf(file, [l for l in export_layers if l is not None], dir)
         layers = read_layers_from_dxf(
-            kicad_export_dxf(file, "Edge.Cuts", f"{base}-Edge.Cuts.dxf"),
-            kicad_export_dxf(file, registration_layer, f"{base}-{registration_layer}.dxf") if registration_layer is not None else None,
-            kicad_export_dxf(file, testing_layer, f"{base}-{testing_layer}.dxf") if testing_layer is not None else None,
+            *[f"{dir}/{Path(file).stem}-{l.replace('.', '_')}.dxf" if l is not None else None for l in export_layers],
             dxf_tolerance
         )
     return layers
