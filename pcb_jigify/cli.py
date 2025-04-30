@@ -52,8 +52,9 @@ testing_parser.add_argument('--side', help='Side of the board facing the testing
 
 def kicad_export_dxf(file, layers, output):
     subprocess.run([
-                   'kicad-cli', 'pcb', 'export', 'dxf',
+                   KICAD_CLI, 'pcb', 'export', 'dxf',
                    '--layers', ','.join(layers),
+                   '--mode-multi', # Supress a deprecation notice
                    '-o', output,
                    '--ou', 'mm', file
     ])
